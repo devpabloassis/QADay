@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Qualidade - Versão Corrigida</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            color: #e0e7ff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(0, 200, 255, 0.7);
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto 20px;
+            color: #a3b2d9;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .game-board {
+            width: 600px;
+            height: 600px;
+            position: relative;
+            background-color: #0d1b2a;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            border: 2px solid #1e3a8a;
+        }
+        
+        .cell {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 8px;
+            font-size: 12px;
+            background-color: #1e3a8a;
+            border: 1px solid #3a86ff;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        
+        .cell:hover {
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(58, 134, 255, 0.8);
+        }
+        
+        .cell-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 11px;
+            color: #fff;
+        }
+        
+        .cell-value {
+            font-size: 10px;
+            opacity: 0.8;
+        }
+        
+        .player {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            position: absolute;
+            z-index: 5;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #000;
+            transition: all 0.5s ease;
+        }
+        
+        .game-controls {
+            background-color: rgba(13, 27, 42, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            width: 350px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #3a86ff;
+        }
+        
+        .dice-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .dice {
+            width: 80px;
+            height: 80px;
+            background: #fff;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            color: #1e3a8a;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .dice.rolling {
+            animation: roll 0.8s ease-out;
+        }
+        
+        @keyframes roll {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg); }
+            50% { transform: rotate(180deg); }
+            75% { transform: rotate(270deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .player-info {
+            background-color: rgba(30, 58, 138, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .player-info h3 {
+            margin-bottom: 10px;
+            color: #3a86ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .player-info .points {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd166;
+            margin: 10px 0;
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #a0a0ff;
+        }
+        
+        .turn-indicator {
+            background-color: rgba(255, 209, 102, 0.2);
+            padding: 10px;
+            border-radius: 50px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid #ffd166;
+            font-weight: bold;
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, #3a86ff, #4361ee);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(90deg, #4361ee, #3a86ff);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn.btn-secondary {
+            background: linear-gradient(90deg, #ff9e00, #ff5400);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            position: relative;
+            border: 2px solid #3a86ff;
+            box-shadow: 0 0 30px rgba(58, 134, 255, 0.5);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #ff6b6b;
+        }
+        
+        .question-text {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            color: #fff;
+            text-align: center;
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .option-btn {
+            padding: 15px;
+            background-color: rgba(30, 58, 138, 0.7);
+            border: 2px solid #3a86ff;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+        
+        .option-btn:hover {
+            background-color: rgba(58, 134, 255, 0.7);
+            transform: translateY(-3px);
+        }
+        
+        .result-message {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .success {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+        
+        .failure {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+        
+        .instructions {
+            background-color: rgba(30, 58, 138, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+            max-width: 1200px;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #ffd166;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .category-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .results-screen {
+            display: none;
+            background: rgba(13, 27, 42, 0.95);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .results-content {
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 800px;
+            width: 90%;
+            border: 3px solid #3a86ff;
+            box-shadow: 0 0 40px rgba(58, 134, 255, 0.7);
+        }
+        
+        .results-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #ffd166;
+        }
+        
+        .results-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-box {
+            background: rgba(30, 58, 138, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 200px;
+            margin: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4cc9f0;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 1.2rem;
+            color: #a3b2d9;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(90deg, #4cc9f0, #4361ee);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (max-width: 1000px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .game-board {
+                width: 95vw;
+                height: 95vw;
+                max-width: 500px;
+                max-height: 500px;
+            }
+            
+            .cell {
+                width: calc(95vw / 6);
+                height: calc(95vw / 6);
+                max-width: 83px;
+                max-height: 83px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .results-title {
+                font-size: 1.8rem;
+            }
+            
+            .stat-box {
+                min-width: 140px;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+	
+	
+	<script>
+        // Categorias temáticas
+        const CATEGORIES = [
+            { name: "Pessoal", icon: "fas fa-user", color: "#FF5733" },
+            { name: "Financeira", icon: "fas fa-coins", color: "#33FF57" },
+            { name: "Amorosa", icon: "fas fa-heart", color: "#FF33A1" },
+            { name: "Profissional", icon: "fas fa-briefcase", color: "#3399FF" },
+            { name: "Emocional", icon: "fas fa-smile", color: "#F0FF33" },
+            { name: "Saúde", icon: "fas fa-heartbeat", color: "#FF3333" },
+            { name: "Familiar", icon: "fas fa-home", color: "#33FFF0" },
+            { name: "Social", icon: "fas fa-users", color: "#A133FF" },
+            { name: "Intelectual", icon: "fas fa-brain", color: "#FF8C33" },
+            { name: "Espiritual", icon: "fas fa-pray", color: "#8CFF33" },
+            { name: "Lazer", icon: "fas fa-gamepad", color: "#338CFF" },
+            { name: "Desenvolvimento", icon: "fas fa-chart-line", color: "#FF338C" },
+            { name: "Ambiente", icon: "fas fa-leaf", color: "#33FF8C" },
+            { name: "Tecnologia", icon: "fas fa-laptop", color: "#8C33FF" },
+            { name: "Comunicação", icon: "fas fa-comments", color: "#FF5733" },
+            { name: "Educação", icon: "fas fa-graduation-cap", color: "#33FF57" },
+            { name: "Segurança", icon: "fas fa-shield-alt", color: "#FF33A1" },
+            { name: "Sustentabilidade", icon: "fas fa-recycle", color: "#3399FF" },
+            { name: "Criatividade", icon: "fas fa-palette", color: "#F0FF33" },
+            { name: "Planejamento", icon: "fas fa-tasks", color: "#FF3333" }
+        ];
+
+        // Perguntas sobre qualidade
+        const QUALITY_QUESTIONS = {
+            Pessoal: [
+                "Qual é o principal indicador de qualidade na vida pessoal?",
+                "Como você mede a qualidade do seu tempo pessoal?",
+                "Qual técnica ajuda a melhorar a qualidade das relações pessoais?"
+            ],
+            Financeira: [
+                "Qual é o primeiro passo para melhorar a qualidade da gestão financeira?",
+                "Como a automação pode melhorar a qualidade do controle financeiro?",
+                "Qual métrica é essencial para avaliar a qualidade dos investimentos?"
+            ],
+            Amorosa: [
+                "Como a comunicação afeta a qualidade de um relacionamento amoroso?",
+                "Qual prática pode melhorar a qualidade do tempo a dois?",
+                "Como o feedback construtivo contribui para a qualidade do relacionamento?"
+            ],
+            Profissional: [
+                "Qual metodologia é usada para melhorar a qualidade em processos profissionais?",
+                "Como o PDCA pode ser aplicado para qualidade profissional?",
+                "Qual é o principal benefício da melhoria contínua no ambiente profissional?"
+            ],
+            Emocional: [
+                "Qual técnica é eficaz para melhorar a qualidade do gerenciamento emocional?",
+                "Como a meditação contribui para a qualidade emocional?",
+                "Qual é a relação entre autoconhecimento e qualidade emocional?"
+            ],
+            Saúde: [
+                "Qual é o impacto da alimentação na qualidade da saúde?",
+                "Como o sono afeta a qualidade de vida?",
+                "Qual prática diária mais contribui para a qualidade da saúde física?"
+            ],
+            Familiar: [
+                "Como estabelecer padrões de qualidade nas relações familiares?",
+                "Qual atividade pode melhorar a qualidade do convívio familiar?",
+                "Como a delegação de tarefas melhora a qualidade da organização familiar?"
+            ],
+            Social: [
+                "Qual fator mais impacta a qualidade das interações sociais?",
+                "Como a escuta ativa melhora a qualidade das relações sociais?",
+                "Qual é o papel da empatia na qualidade das conexões sociais?"
+            ],
+            Intelectual: [
+                "Qual método é eficaz para garantir a qualidade do aprendizado?",
+                "Como a leitura contribui para a qualidade do desenvolvimento intelectual?",
+                "Qual prática melhora a qualidade da retenção de conhecimento?"
+            ],
+            Espiritual: [
+                "Como a reflexão diária contribui para a qualidade espiritual?",
+                "Qual é o impacto da gratidão na qualidade da vida espiritual?",
+                "Como o mindfulness melhora a qualidade da conexão espiritual?"
+            ],
+            Lazer: [
+                "Qual é a importância do lazer para a qualidade de vida?",
+                "Como equilibrar qualidade e quantidade no tempo de lazer?",
+                "Qual atividade de lazer mais contribui para a qualidade do descanso?"
+            ],
+            Desenvolvimento: [
+                "Qual método é mais eficaz para garantir qualidade no desenvolvimento pessoal?",
+                "Como estabelecer métricas de qualidade para desenvolvimento?",
+                "Qual é o papel do feedback na qualidade do desenvolvimento?"
+            ],
+            Ambiente: [
+                "Como a organização do ambiente afeta a qualidade do trabalho?",
+                "Qual prática melhora a qualidade do ambiente doméstico?",
+                "Como a ergonomia contribui para a qualidade do ambiente profissional?"
+            ],
+            Tecnologia: [
+                "Qual prática garante qualidade no desenvolvimento de software?",
+                "Como a automação de testes melhora a qualidade do produto?",
+                "Qual metodologia é mais eficaz para qualidade em TI?"
+            ],
+            Comunicação: [
+                "Qual técnica melhora a qualidade da comunicação não-violenta?",
+                "Como a escuta ativa impacta a qualidade da comunicação?",
+                "Qual é o papel da clareza na qualidade da mensagem?"
+            ],
+            Educação: [
+                "Qual método avalia a qualidade do processo educacional?",
+                "Como o feedback contínuo melhora a qualidade do aprendizado?",
+                "Qual é o impacto das metodologias ativas na qualidade da educação?"
+            ],
+            Segurança: [
+                "Qual prática é essencial para qualidade na segurança da informação?",
+                "Como a análise de riscos contribui para a qualidade da segurança?",
+                "Qual é o papel dos padrões ISO na qualidade dos sistemas de segurança?"
+            ],
+            Sustentabilidade: [
+                "Qual indicador mede a qualidade de práticas sustentáveis?",
+                "Como a economia circular melhora a qualidade ambiental?",
+                "Qual é o impacto do ESG na qualidade das operações empresariais?"
+            ],
+            Criatividade: [
+                "Qual técnica estimula a qualidade do pensamento criativo?",
+                "Como a diversidade de experiências afeta a qualidade criativa?",
+                "Qual método é eficaz para avaliação da qualidade de ideias criativas?"
+            ],
+            Planejamento: [
+                "Qual ferramenta garante qualidade no planejamento estratégico?",
+                "Como o método SMART melhora a qualidade dos objetivos?",
+                "Qual é o papel da revisão contínua na qualidade do planejamento?"
+            ]
+        };
+
+        // Respostas para as perguntas
+        const QUESTION_ANSWERS = {
+            Pessoal: [
+                ["Autoconhecimento", "Relações sociais", "Conforto material", "Sucesso profissional"],
+                ["Satisfação subjetiva", "Número de atividades", "Tempo gasto", "Produtividade"],
+                ["Escuta ativa", "Delegação", "Planejamento", "Automação"]
+            ],
+            Financeira: [
+                ["Diagnóstico da situação atual", "Investimento imediato", "Cortar todos os gastos", "Contratação de consultor"],
+                ["Reduzindo erros humanos", "Aumentando gastos", "Limitando acesso", "Complicando processos"],
+                ["Retorno sobre investimento (ROI)", "Volume de transações", "Número de investimentos", "Popularidade do ativo"]
+            ],
+            Amorosa: [
+                ["Melhora o entendimento mútuo", "Aumenta conflitos", "Diminui intimidade", "Reduz tempo juntos"],
+                ["Presença e atenção plena", "Presentes caros", "Viagens longas", "Conversas superficiais"],
+                ["Facilita ajustes e melhorias", "Cria distância", "Gera competição", "Limita expressão"]
+            ],
+            Profissional: [
+                ["PDCA", "Brainstorming", "SWOT", "Pareto"],
+                ["Identificando problemas e melhorias", "Aumentando produtividade", "Reduzindo custos", "Automatizando tarefas"],
+                ["Aumento da eficiência", "Redução de custos", "Satisfação do cliente", "Todas as anteriores"]
+            ],
+            Emocional: [
+                ["Mindfulness", "Multitarefa", "Supressão", "Isolamento"],
+                ["Reduzindo estresse", "Aumentando produtividade", "Melhorando memória", "Todas as anteriores"],
+                ["Permite maior controle emocional", "Aumenta a reatividade", "Diminui a autoconsciência", "Nenhuma das anteriores"]
+            ],
+            Saúde: [
+                ["Fundamental para saúde", "Pouco relevante", "Importante apenas para atletas", "Nenhuma das anteriores"],
+                ["Afeta energia e disposição", "Não tem impacto significativo", "Só afeta o humor", "Nenhuma das anteriores"],
+                ["Exercícios físicos", "Trabalho", "Estudo", "Todas as anteriores"]
+            ],
+            Familiar: [
+                ["Comunicação clara", "Hierarquia rígida", "Individualismo", "Competição"],
+                ["Jantares em família", "Viagens", "Conversas profundas", "Todas as anteriores"],
+                ["Distribui responsabilidades", "Cansa os membros", "Cria conflitos", "Nenhuma das anteriores"]
+            ],
+            Social: [
+                ["Respeito mútuo", "Quantidade de amigos", "Popularidade", "Status social"],
+                ["Promove compreensão", "Aumenta conflitos", "Diminui conexões", "Nenhuma das anteriores"],
+                ["Cria conexões mais profundas", "Aumenta isolamento", "Diminui confiança", "Nenhuma das anteriores"]
+            ],
+            Intelectual: [
+                ["Prática deliberada", "Leitura passiva", "Memorização", "Repetição"],
+                ["Expandindo conhecimentos", "Melhorando vocabulário", "Desenvolvendo pensamento crítico", "Todas as anteriores"],
+                ["Revisão espaçada", "Estudo intensivo", "Multitarefa", "Nenhuma das anteriores"]
+            ],
+            Espiritual: [
+                ["Aumenta autoconhecimento", "Diminui reflexão", "Aumenta estresse", "Nenhuma das anteriores"],
+                ["Melhora bem-estar", "Diminui resiliência", "Aumenta ansiedade", "Nenhuma das anteriores"],
+                ["Aumenta presença", "Diminui foco", "Aumenta distração", "Nenhuma das anteriores"]
+            ],
+            Lazer: [
+                ["Recarrega energias", "Aumenta estresse", "Diminui criatividade", "Nenhuma das anteriores"],
+                ["Priorizando qualidade", "Maximizando quantidade", "Eliminando lazer", "Nenhuma das anteriores"],
+                ["Meditação", "Exercícios", "Leitura", "Depende da pessoa"]
+            ],
+            Desenvolvimento: [
+                ["Metas SMART", "Improviso", "Intuição", "Nenhuma das anteriores"],
+                ["KPIs específicos", "Sentimentos", "Opiniões", "Nenhuma das anteriores"],
+                ["Identifica áreas de melhoria", "Cria resistência", "Diminui motivação", "Nenhuma das anteriores"]
+            ],
+            Ambiente: [
+                ["Aumenta produtividade", "Diminui foco", "Aumenta estresse", "Nenhuma das anteriores"],
+                ["Organização", "Acúmulo", "Bagunça", "Nenhuma das anteriores"],
+                ["Previne lesões", "Aumenta desconforto", "Diminui produtividade", "Nenhuma das anteriores"]
+            ],
+            Tecnologia: [
+                ["Testes automatizados", "Improviso", "Prazos curtos", "Nenhuma das anteriores"],
+                ["Identifica erros precocemente", "Aumenta bugs", "Diminui confiabilidade", "Nenhuma das anteriores"],
+                ["Ágil", "Cascata", "Ad-hoc", "Nenhuma das anteriores"]
+            ],
+            Comunicação: [
+                ["Foco em necessidades", "Críticas pessoais", "Julgamentos", "Nenhuma das anteriores"],
+                ["Melhora compreensão", "Aumenta conflitos", "Diminui empatia", "Nenhuma das anteriores"],
+                ["Evita mal-entendidos", "Complica a mensagem", "Aumenta ambiguidade", "Nenhuma das anteriores"]
+            ],
+            Educação: [
+                ["Avaliações formativas", "Notas finais", "Frequência", "Nenhuma das anteriores"],
+                ["Ajusta abordagem", "Desmotiva alunos", "Cria resistência", "Nenhuma das anteriores"],
+                ["Aumenta engajamento", "Diminui aprendizado", "Aumenta tédio", "Nenhuma das anteriores"]
+            ],
+            Segurança: [
+                ["Autenticação multifator", "Senhas simples", "Compartilhamento de credenciais", "Nenhuma das anteriores"],
+                ["Identifica vulnerabilidades", "Aumenta riscos", "Diminui proteção", "Nenhuma das anteriores"],
+                ["Padroniza práticas", "Complica processos", "Aumenta custos", "Nenhuma das anteriores"]
+            ],
+            Sustentabilidade: [
+                ["Pegada de carbono", "Lucro", "Produtividade", "Nenhuma das anteriores"],
+                ["Reduz desperdício", "Aumenta consumo", "Diminui eficiência", "Nenhuma das anteriores"],
+                ["Melhora reputação", "Diminui lucratividade", "Aumenta riscos", "Nenhuma das anteriores"]
+            ],
+            Criatividade: [
+                ["Brainstorming", "Rotina rígida", "Pressão", "Nenhuma das anteriores"],
+                ["Amplia perspectivas", "Limita visão", "Diminui originalidade", "Nenhuma das anteriores"],
+                ["Critérios objetivos", "Opiniões pessoais", "Intuição", "Nenhuma das anteriores"]
+            ],
+            Planejamento: [
+                ["SWOT", "Improviso", "Intuição", "Nenhuma das anteriores"],
+                ["Torna metas alcançáveis", "Complica objetivos", "Diminui clareza", "Nenhuma das anteriores"],
+                ["Ajusta estratégias", "Mantém planos obsoletos", "Diminui flexibilidade", "Nenhuma das anteriores"]
+            ]
+        };
+
+        // Respostas corretas (índices) - simplificado para demonstração
+        const CORRECT_ANSWERS = {
+            Pessoal: [0, 0, 0],
+            Financeira: [0, 0, 0],
+            Amorosa: [0, 0, 0],
+            Profissional: [0, 0, 3],
+            Emocional: [0, 3, 0],
+            Saúde: [0, 0, 0],
+            Familiar: [0, 3, 0],
+            Social: [0, 0, 0],
+            Intelectual: [0, 3, 0],
+            Espiritual: [0, 0, 0],
+            Lazer: [0, 0, 3],
+            Desenvolvimento: [0, 0, 0],
+            Ambiente: [0, 0, 0],
+            Tecnologia: [0, 0, 0],
+            Comunicação: [0, 0, 0],
+            Educação: [0, 0, 0],
+            Segurança: [0, 0, 0],
+            Sustentabilidade: [0, 0, 0],
+            Criatividade: [0, 0, 0],
+            Planejamento: [0, 0, 0]
+        };
+
+        class Player {
+            constructor() {
+                this.position = 0;
+                this.points = 0;
+                this.tokenElement = null;
+                this.totalQuestions = 0;
+                this.correctAnswers = 0;
+            }
+            
+			
+			
+            addPoint() {
+                this.points++;
+                this.correctAnswers++;                
+            }
+            
+            addQuestion() {
+                this.totalQuestions++;
+            }
+        }
+
+        class QualityGame {
+            constructor() {
+				this.qtdAnswers = 3;				
+                this.player = new Player();
+                this.gameBoard = document.getElementById('game-board');
+                this.diceElement = document.getElementById('dice');
+                this.rollButton = document.getElementById('roll-btn');
+                this.questionModal = document.getElementById('question-modal');
+                this.questionText = document.getElementById('question-text');
+                this.optionsContainer = document.getElementById('options-container');
+                this.resultMessage = document.getElementById('result-message');
+                this.closeModal = document.getElementById('close-modal');
+                this.playerPoints = document.getElementById('player-points');
+                this.correctCount = document.getElementById('correct-count');
+                this.questionsCount = document.getElementById('questions-count');
+                this.rulesButton = document.getElementById('rules-btn');
+                this.resultsScreen = document.getElementById('results-screen');
+                this.restartButton = document.getElementById('restart-btn');
+                this.finalPoints = document.getElementById('final-points');
+                this.finalTime = document.getElementById('final-time');
+                this.correctRate = document.getElementById('correct-rate');
+                this.gameTime = document.getElementById('game-time');
+                
+                this.startTime = null;
+                this.timerInterval = null;
+                this.gameActive = true;
+                this.currentCategory = null;
+                this.currentQuestionIndex = null;
+                
+                this.init();
+            }
+            
+            init() {
+                this.createBoard();
+                this.createPlayerToken();
+                this.setupEventListeners();
+                this.updatePlayerInfo();
+                this.positionPlayer();
+                this.startTimer();
+            }
+            
+            createBoard() {
+                // Posições do tabuleiro
+                const positions = [
+                    { top: 0, left: 0 }, { top: 0, left: 100 }, { top: 0, left: 200 }, { top: 0, left: 300 }, { top: 0, left: 400 }, { top: 0, left: 500 },
+                    { top: 100, left: 500 }, { top: 200, left: 500 }, { top: 300, left: 500 }, { top: 400, left: 500 }, { top: 500, left: 500 },
+                    { top: 500, left: 400 }, { top: 500, left: 300 }, { top: 500, left: 200 }, { top: 500, left: 100 }, { top: 500, left: 0 },
+                    { top: 400, left: 0 }, { top: 300, left: 0 }, { top: 200, left: 0 }, { top: 100, left: 0 }
+                ];
+                
+                CATEGORIES.forEach((category, index) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.style.backgroundColor = category.color;
+                    cell.style.top = `${positions[index].top}px`;
+                    cell.style.left = `${positions[index].left}px`;
+                    
+                    cell.innerHTML = `
+                        <div class="category-icon"><i class="${category.icon}"></i></div>
+                        <div class="cell-title">${category.name}</div>
+                    `;
+                    
+                    this.gameBoard.appendChild(cell);
+                });
+            }
+            
+            createPlayerToken() {
+                const token = document.createElement('div');
+                token.className = 'player';
+                token.id = 'player-token';
+                token.style.backgroundColor = '#4cc9f0';
+                this.gameBoard.appendChild(token);
+                this.player.tokenElement = token;
+            }
+            
+            positionPlayer() {
+                if (!this.player.tokenElement) return;
+                
+                // Posições baseadas no índice do tabuleiro
+                const positions = [
+                    { top: '10px', left: '10px' },
+                    { top: '10px', left: '110px' },
+                    { top: '10px', left: '210px' },
+                    { top: '10px', left: '310px' },
+                    { top: '10px', left: '410px' },
+                    { top: '10px', left: '510px' },
+                    { top: '110px', left: '510px' },
+                    { top: '210px', left: '510px' },
+                    { top: '310px', left: '510px' },
+                    { top: '410px', left: '510px' },
+                    { top: '510px', left: '510px' },
+                    { top: '510px', left: '410px' },
+                    { top: '510px', left: '310px' },
+                    { top: '510px', left: '210px' },
+                    { top: '510px', left: '110px' },
+                    { top: '510px', left: '10px' },
+                    { top: '410px', left: '10px' },
+                    { top: '310px', left: '10px' },
+                    { top: '210px', left: '10px' },
+                    { top: '110px', left: '10px' }
+                ];
+                
+                if (this.player.position < positions.length) {
+                    this.player.tokenElement.style.top = positions[this.player.position].top;
+                    this.player.tokenElement.style.left = positions[this.player.position].left;
+                }
+            }
+            
+            rollDice() {
+                return Math.floor(Math.random() * 6) + 1;
+            }
+            
+            movePlayer(steps) {
+                // Desabilita o botão durante o movimento
+                this.rollButton.disabled = true;
+                
+                // Animação de movimento
+                let stepCount = 0;
+                const moveInterval = setInterval(() => {
+                    if (stepCount >= steps) {
+                        clearInterval(moveInterval);
+                        this.handleLand();
+                        return;
+                    }
+                    
+                    this.player.position = (this.player.position + 1) % CATEGORIES.length;
+                    this.positionPlayer();
+                    stepCount++;
+                }, 300);
+            }
+            
+            handleLand() {
+                const category = CATEGORIES[this.player.position];
+                this.currentCategory = category.name;
+                
+                // Mostra a pergunta após pequeno delay
+                setTimeout(() => {
+                    this.showQuestion(category);
+                }, 500);
+            }
+            
+            showQuestion(category) {
+                const questions = QUALITY_QUESTIONS[category.name];
+                this.currentQuestionIndex = Math.floor(Math.random() * questions.length);
+                const question = questions[this.currentQuestionIndex];
+                
+                this.questionText.textContent = question;
+                this.optionsContainer.innerHTML = '';
+                this.resultMessage.textContent = '';
+                this.resultMessage.className = 'result-message';
+                
+                const answers = QUESTION_ANSWERS[category.name][this.currentQuestionIndex];
+                
+                answers.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'option-btn';
+                    button.textContent = option;
+                    button.onclick = () => this.handleAnswer(index);
+                    this.optionsContainer.appendChild(button);
+                });
+                
+                this.questionModal.style.display = 'flex';
+                this.player.addQuestion();
+                this.updatePlayerInfo();
+            }
+            
+            handleAnswer(answerIndex) {
+                const correctIndex = CORRECT_ANSWERS[this.currentCategory][this.currentQuestionIndex];				
+				
+				console.log("this.player.totalQuestions: ",this.player.totalQuestions);				
+				console.log("this.qtdAnswers: ",this.qtdAnswers);
+                                    
+                if (answerIndex === correctIndex) {
+                    // Resposta correta
+                    this.resultMessage.textContent = "RESPOSTA CORRETA!";
+                    this.resultMessage.className = "result-message success";
+                    this.player.addPoint();
+					
+                    // Verifica se o jogador completou o jogo
+                    if (this.player.points >= this.qtdAnswers) {
+                        setTimeout(() => {
+                            this.questionModal.style.display = 'none';
+                            this.showResults();
+                        }, 1500);
+                        return;
+                    }
+                } else {
+                    // Resposta incorreta
+                    this.resultMessage.textContent = "RESPOSTA INCORRETA!";
+                    this.resultMessage.className = "result-message failure";
+                }
+                
+                // Atualiza informações do jogador
+                this.updatePlayerInfo();
+                
+                // Fecha o modal após 2 segundos e reabilita o botão
+                setTimeout(() => {
+                    this.questionModal.style.display = 'none';
+                    this.rollButton.disabled = false;
+                }, 2000);
+            }
+            
+            updatePlayerInfo() {
+                this.playerPoints.textContent = this.player.points;
+                this.correctCount.textContent = this.player.correctAnswers;
+                this.questionsCount.textContent = this.player.totalQuestions;
+            }
+            
+            startTimer() {
+                this.startTime = new Date();
+                this.timerInterval = setInterval(() => {
+                    const now = new Date();
+                    const diff = Math.floor((now - this.startTime) / 1000);
+                    const minutes = Math.floor(diff / 60).toString().padStart(2, '0');
+                    const seconds = (diff % 60).toString().padStart(2, '0');
+                    this.gameTime.textContent = `${minutes}:${seconds}`;
+                }, 1000);
+            }
+            
+            stopTimer() {
+                clearInterval(this.timerInterval);
+            }
+            
+            showResults() {
+                this.stopTimer();
+                this.gameActive = false;
+                
+                const now = new Date();
+                const diff = Math.floor((now - this.startTime) / 1000);
+                const minutes = Math.floor(diff / 60).toString().padStart(2, '0');
+                const seconds = (diff % 60).toString().padStart(2, '0');
+                
+                this.finalPoints.textContent = `${this.player.points}/${this.qtdAnswers}`;
+				console.log("this.player.points: ",this.player.points);
+				console.log("this.qtdAnswers: ",this.qtdAnswers);
+                this.finalTime.textContent = `${minutes}:${seconds}`;
+                
+                const correctRate = this.player.totalQuestions > 0 
+                    ? Math.round((this.player.correctAnswers / this.player.totalQuestions) * 100)
+                    : 0;
+                this.correctRate.textContent = `${correctRate}%`;
+                
+                this.resultsScreen.style.display = 'flex';
+            }
+            
+            restartGame() {
+                // Remove token antigo
+                if (this.player.tokenElement) {
+                    this.player.tokenElement.remove();
+                }
+                
+                // Reinicia o jogador
+                this.player = new Player();
+                
+                // Cria novo token
+                this.createPlayerToken();
+                this.positionPlayer();
+                this.updatePlayerInfo();
+                
+                // Reinicia o timer
+                this.stopTimer();
+                this.startTimer();
+                
+                // Esconde a tela de resultados
+                this.resultsScreen.style.display = 'none';
+                this.gameActive = true;
+                this.rollButton.disabled = false;
+            }
+            
+            setupEventListeners() {
+                this.rollButton.addEventListener('click', () => {
+                    if (!this.gameActive) return;
+                    
+                    // Adiciona classe para animação
+                    this.diceElement.classList.add('rolling');
+                    
+                    setTimeout(() => {
+                        const diceValue = this.rollDice();
+                        
+                        // Remove a animação e mostra o valor
+                        this.diceElement.classList.remove('rolling');
+                        this.diceElement.innerHTML = diceValue;
+                        
+                        this.movePlayer(diceValue);
+                    }, 800);
+                });
+                
+                this.closeModal.addEventListener('click', () => {
+                    this.questionModal.style.display = 'none';
+                    this.rollButton.disabled = false;
+                });
+                
+                this.rulesButton.addEventListener('click', () => {
+                    alert("REGRAS DO JOGO:\n\n1. Clique em 'LANÇAR DADO' para mover seu peão\n2. Ao parar em uma casa, responda a pergunta sobre qualidade\n3. Acertando, você ganha um ponto\n4. O jogo termina quando você acumular ${this.qtdAnswers} pontos\n5. Seu tempo e desempenho serão registrados");
+                });
+                
+                this.restartButton.addEventListener('click', () => {
+                    this.restartGame();
+                });
+            }
+        }
+
+        // Inicializa o jogo quando a página carrega
+        window.onload = () => {
+            const game = new QualityGame();
+        };
+    </script>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-star"></i> JOGO DA QUALIDADE <i class="fas fa-star"></i></h1>
+        <p class="subtitle">Responda perguntas sobre qualidade em diferentes áreas da vida e alcance 10 acertos!</p>
+    </header>
+    
+    <div class="container">
+        <div class="game-board" id="game-board">
+            <!-- Tabuleiro será gerado por JavaScript -->
+        </div>
+        
+        <div class="game-controls">
+            <div class="turn-indicator" id="turn-indicator">
+                SUA VEZ DE JOGAR
+            </div>
+            
+            <div class="player-info">
+                <h3><i class="fas fa-user"></i> JOGADOR</h3>
+                <div class="points">PONTOS: <span id="player-points">0</span>/3</div>
+                <div>TEMPO: <span id="game-time">00:00</span></div>
+            </div>
+            
+            <div class="dice-container">
+                <div class="dice" id="dice">
+                    <i class="fas fa-dice"></i>
+                </div>
+            </div>
+            
+            <button class="btn" id="roll-btn">
+                <i class="fas fa-dice"></i> LANÇAR DADO
+            </button>
+            
+            <button class="btn btn-secondary" id="rules-btn">
+                <i class="fas fa-book"></i> REGRAS DO JOGO
+            </button>
+            
+            <div class="game-stats">
+                <div>PERGUNTAS: <span id="questions-count">0</span></div>
+                <div>ACERTOS: <span id="correct-count">0</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="question-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal">&times;</span>
+            <div class="question-text" id="question-text"></div>
+            <div class="options-container" id="options-container"></div>
+            <div class="result-message" id="result-message"></div>
+        </div>
+    </div>
+    
+    <div class="instructions">
+        <h3><i class="fas fa-info-circle"></i> COMO JOGAR:</h3>
+        <ul>
+            <li>Clique em "LANÇAR DADO" para mover seu peão pelo tabuleiro</li>
+            <li>Ao parar em uma casa, responda uma pergunta sobre qualidade</li>
+            <li>Acertando, você ganha um ponto</li>
+            <li>O jogo termina quando você acertar 10 questões</li>
+            <li>Seu tempo e desempenho serão registrados</li>
+        </ul>
+    </div>
+    
+    <div class="results-screen" id="results-screen">
+        <div class="results-content">
+            <h2 class="results-title">PARABÉNS! VOCÊ COMPLETOU O JOGO!</h2>
+            
+            <div class="results-stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="final-points">10/10</div>
+                    <div class="stat-label">PONTUAÇÃO</div>
+                </div>
+                
+                <div class="stat-box">
+                    <div class="stat-value" id="final-time">00:00</div>
+                    <div class="stat-label">TEMPO TOTAL</div>
+                </div>
+                
+                <div class="stat-box">
+                    <div class="stat-value" id="correct-rate">100%</div>
+                    <div class="stat-label">TAXA DE ACERTO</div>
+                </div>
+            </div>
+            
+            <p>Estes dados serão enviados para análise de qualidade.</p>
+            <p>Obrigado por participar!</p>
+            
+            <button class="restart-btn" id="restart-btn">
+                <i class="fas fa-redo"></i> JOGAR NOVAMENTE
+            </button>
+        </div>
+    </div>
+   
+</body>
+</html>
